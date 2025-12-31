@@ -568,6 +568,25 @@ def index():
                 background: #f8f9fa;
                 font-weight: 600;
                 color: #2c3e50;
+                cursor: pointer;
+                user-select: none;
+                position: relative;
+            }
+            th:hover {
+                background: #e8eaed;
+            }
+            th.sortable::after {
+                content: ' ⇅';
+                font-size: 12px;
+                opacity: 0.5;
+            }
+            th.sorted-asc::after {
+                content: ' ↑';
+                opacity: 1;
+            }
+            th.sorted-desc::after {
+                content: ' ↓';
+                opacity: 1;
             }
             tr:hover { background: #f8f9fa; }
             tr.hidden { display: none; }
@@ -617,14 +636,14 @@ def index():
                 </div>
                 
                 <div class="table-container">
-                    <table>
+                    <table id="priceTable">
                         <thead>
                             <tr>
-                                <th>Station</th>
-                                <th>Date</th>
-                                <th>Price</th>
-                                <th>Fuel</th>
-                                <th>Postal</th>
+                                <th class="sortable" data-column="station">Station</th>
+                                <th class="sortable" data-column="date">Date</th>
+                                <th class="sortable" data-column="price">Price</th>
+                                <th class="sortable" data-column="fuel">Fuel</th>
+                                <th class="sortable" data-column="postal">Postal</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -730,6 +749,69 @@ def index():
                         checkbox.addEventListener('change', () => {{
                             updateChart();
                             updateTable();
+                        }});
+                    }});
+                    
+                    // Table sorting functionality
+                    let sortColumn = null;
+                    let sortDirection = 'asc';
+                    
+                    function sortTable(column) {{
+                        const table = document.getElementById('priceTable');
+                        const tbody = table.querySelector('tbody');
+                        const rows = Array.from(tbody.querySelectorAll('tr'));
+                        
+                        // Toggle sort direction if same column clicked
+                        if (sortColumn === column) {{
+                            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                        }} else {{
+                            sortDirection = 'asc';
+                            // Remove previous sort indicators
+                            document.querySelectorAll('th.sorted-asc, th.sorted-desc').forEach(th => {{
+                                th.classList.remove('sorted-asc', 'sorted-desc');
+                            }});
+                        }}
+                        sortColumn = column;
+                        
+                        // Sort rows
+                        rows.sort((a, b) => {{
+                            let aVal, bVal;
+                            
+                            if (column === 'price') {{
+                                aVal = parseFloat(a.cells[2].textContent.replace('€', ''));
+                                bVal = parseFloat(b.cells[2].textContent.replace('€', ''));
+                            }} else if (column === 'date') {{
+                                aVal = new Date(a.cells[1].textContent);
+                                bVal = new Date(b.cells[1].textContent);
+                            }} else if (column === 'station') {{
+                                aVal = a.cells[0].textContent.trim();
+                                bVal = b.cells[0].textContent.trim();
+                            }} else if (column === 'fuel') {{
+                                aVal = a.cells[3].textContent.trim();
+                                bVal = b.cells[3].textContent.trim();
+                            }} else if (column === 'postal') {{
+                                aVal = a.cells[4].textContent.trim();
+                                bVal = b.cells[4].textContent.trim();
+                            }}
+                            
+                            if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                            if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                            return 0;
+                        }});
+                        
+                        // Re-append sorted rows
+                        rows.forEach(row => tbody.appendChild(row));
+                        
+                        // Update header indicator
+                        const header = document.querySelector(`th[data-column="${{column}}"]`);
+                        header.classList.add(sortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                    }}
+                    
+                    // Add click listeners to sortable headers
+                    document.querySelectorAll('th.sortable').forEach(th => {{
+                        th.addEventListener('click', () => {{
+                            const column = th.getAttribute('data-column');
+                            sortTable(column);
                         }});
                     }});
                     

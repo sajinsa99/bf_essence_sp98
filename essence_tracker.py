@@ -423,6 +423,14 @@ def fetch_all_prices():
     logger.info(f"\n✓ Fetch complete. Updated {total_fetched} station(s)")
 
 # Flask routes
+@app.after_request
+def disable_caching(response):
+    """Disable caching for all responses"""
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
 @app.route('/')
 def index():
     tracker = PriceTracker(DB_FILE)

@@ -1,0 +1,20 @@
+# Fuel Price Tracker Configuration
+# Format: postal_code -> list of stations to track
+
+stations:
+  "92400":  # Courbevoie
+    - name: "RELAIS DE L'ALMA | TotalEnergies"
+      fuel: "SP98"
+    - name: "RELAIS COURBEVOIE VERDUN | TotalEnergies Access"
+      fuel: "SP98"
+
+# Add more postal codes and stations as needed:
+# "75001":  # Paris
+#   - name: "STATION NAME | BRAND"
+#     fuel: "SP98"
+#   - name: "ANOTHER STATION | BRAND"
+#     fuel: "SP95"
+
+server:
+  port: 9000
+  host: "0.0.0.0"

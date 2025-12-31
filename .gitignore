@@ -1,0 +1,12 @@
+*.pyc
+__pycache__/
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+.DS_Store
+prices.json
+essence_tracker.log
+.server.pid
